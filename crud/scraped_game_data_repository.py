@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import Depends
 from sqlalchemy import select, insert, update, delete
+from sqlalchemy.orm import selectinload
 
 from db import SessionLocalDependency
 from model import ScrapedGameData
@@ -13,7 +14,7 @@ class ScrapedGameDataRepository:
         self.session = session
 
     async def get_all_scraped_data(self):
-        query = select(ScrapedGameData)
+        query = select(ScrapedGameData).options(selectinload(ScrapedGameData.game))
         result = await self.session.scalars(query)
         return result.all()
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status
 
 from core import GameScrapeServiceDependency
-from schemas import ScrapeRequest
+from schemas import ScrapeGamesRequest, ScrapeRequestDTO
 
 router = APIRouter(
     prefix="/scrape",
@@ -10,18 +10,16 @@ router = APIRouter(
         status.HTTP_404_NOT_FOUND: {"description": "Not found"},
         status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "Internal server error"},
         status.HTTP_400_BAD_REQUEST: {"description": "Bad request"},
-        status.HTTP_202_ACCEPTED: {"description": "Accepted"},
     },
 )
 
 
-@router.post("/scrape", status_code=status.HTTP_202_ACCEPTED)
+@router.post("/", status_code=status.HTTP_202_ACCEPTED, response_model=ScrapeRequestDTO)
 async def scrape_games_for_platform_endpoint(
-    request: ScrapeRequest,
+    request: ScrapeGamesRequest,
     service: GameScrapeServiceDependency,
-):
-    result = await service.scrape_games_for_platform(request.platform_id, request.limit)
-    return {
-        "message": f"Scraping initiated for platform {request.platform_id} with limit {request.limit}.",
-        "result": result,
-    }
+) -> ScrapeRequestDTO:
+    scrape_request = await service.scrape_games_for_platform(
+        request.platform_id, request.limit
+    )
+    return scrape_request

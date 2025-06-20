@@ -1,0 +1,427 @@
+{
+  "info": {
+    "name": "Game Platform Analyzer API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for Game Platform Analyzer API"
+  },
+  "item": [
+    {
+      "name": "Platforms",
+      "item": [
+        {
+          "name": "Get All Platforms",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/platforms/",
+              "host": ["{{base_url}}"],
+              "path": ["platforms", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Platform",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Steam\",\n    \"search_url_template\": \"https://store.steampowered.com/search/?term={search_term}\",\n    \"base_url\": \"https://store.steampowered.com\",\n    \"game_data_selector\": {\n        \"name\": \".title::text\",\n        \"price\": \".search_price::text\"\n    }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/platforms/",
+              "host": ["{{base_url}}"],
+              "path": ["platforms", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Platform by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/platforms/{{platform_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["platforms", "{{platform_id}}"],
+              "variable": [
+                {
+                  "key": "platform_id",
+                  "value": "",
+                  "description": "UUID of the platform"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Platform by Name",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/platforms/name/{{platform_name}}",
+              "host": ["{{base_url}}"],
+              "path": ["platforms", "name", "{{platform_name}}"],
+              "variable": [
+                {
+                  "key": "platform_name",
+                  "value": "Steam",
+                  "description": "Name of the platform"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Platform",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Steam Updated\",\n    \"search_url_template\": \"https://store.steampowered.com/search/?term={search_term}\",\n    \"base_url\": \"https://store.steampowered.com\",\n    \"game_data_selector\": {\n        \"name\": \".title::text\",\n        \"price\": \".search_price::text\"\n    }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/platforms/{{platform_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["platforms", "{{platform_id}}"],
+              "variable": [
+                {
+                  "key": "platform_id",
+                  "value": "",
+                  "description": "UUID of the platform to update"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Platform",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/platforms/{{platform_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["platforms", "{{platform_id}}"],
+              "variable": [
+                {
+                  "key": "platform_id",
+                  "value": "",
+                  "description": "UUID of the platform to delete"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Games",
+      "item": [
+        {
+          "name": "Get All Games",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/games/",
+              "host": ["{{base_url}}"],
+              "path": ["games", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Game",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Example Game\",\n    \"genre\": \"Action\",\n    \"publisher\": \"Example Publisher\",\n    \"price_in_usd\": 29.99,\n    \"rating\": 4.5,\n    \"n_text_languages\": 5,\n    \"platform_id\": \"{{platform_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/games/",
+              "host": ["{{base_url}}"],
+              "path": ["games", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Game by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/games/{{game_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["games", "{{game_id}}"],
+              "variable": [
+                {
+                  "key": "game_id",
+                  "value": "",
+                  "description": "UUID of the game"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Game Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/games/{{game_id}}/summary",
+              "host": ["{{base_url}}"],
+              "path": ["games", "{{game_id}}", "summary"],
+              "variable": [
+                {
+                  "key": "game_id",
+                  "value": "",
+                  "description": "UUID of the game to generate summary for"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Game by Name",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/games/name/{{game_name}}",
+              "host": ["{{base_url}}"],
+              "path": ["games", "name", "{{game_name}}"],
+              "variable": [
+                {
+                  "key": "game_name",
+                  "value": "Example Game",
+                  "description": "Name of the game"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Game",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Example Game Updated\",\n    \"genre\": \"Action-Adventure\",\n    \"publisher\": \"Example Publisher\",\n    \"price_in_usd\": 24.99,\n    \"rating\": 4.7,\n    \"n_text_languages\": 6,\n    \"platform_id\": \"{{platform_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/games/{{game_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["games", "{{game_id}}"],
+              "variable": [
+                {
+                  "key": "game_id",
+                  "value": "",
+                  "description": "UUID of the game to update"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Game",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/games/{{game_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["games", "{{game_id}}"],
+              "variable": [
+                {
+                  "key": "game_id",
+                  "value": "",
+                  "description": "UUID of the game to delete"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Scraping",
+      "item": [
+        {
+          "name": "Start Scraping Job",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"platform_id\": \"{{platform_id}}\",\n    \"limit\": 10\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/scrape/",
+              "host": ["{{base_url}}"],
+              "path": ["scrape", ""]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Analysis",
+      "item": [
+        {
+          "name": "Price vs Rating Analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/analysis/price-vs-rating",
+              "host": ["{{base_url}}"],
+              "path": ["analysis", "price-vs-rating"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Price vs Genre/Publisher Analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/analysis/price-vs-genre-publisher",
+              "host": ["{{base_url}}"],
+              "path": ["analysis", "price-vs-genre-publisher"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Languages vs Genre/Platform/Publisher Analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/analysis/languages-vs-genre-platform-publisher",
+              "host": ["{{base_url}}"],
+              "path": ["analysis", "languages-vs-genre-platform-publisher"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Custom Analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"dependent_variable\": \"price_in_usd\",\n    \"independent_variables\": [\"rating\", \"genre\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/analysis/custom",
+              "host": ["{{base_url}}"],
+              "path": ["analysis", "custom"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string",
+      "description": "Base URL for the API"
+    },
+    {
+      "key": "platform_id",
+      "value": "",
+      "type": "string",
+      "description": "Platform ID for requests"
+    },
+    {
+      "key": "game_id",
+      "value": "",
+      "type": "string",
+      "description": "Game ID for requests"
+    }
+  ]
+}

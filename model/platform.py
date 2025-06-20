@@ -16,3 +16,11 @@ class Platform(Base):
     scraped_data = relationship(
         "ScrapedGameData", back_populates="platform", cascade="all, delete-orphan"
     )
+
+    scrape_requests = relationship(
+        "ScrapeRequest", back_populates="platform", cascade="all, delete-orphan"
+    )
+
+    scrape_results = relationship(
+        "ScrapeResult", back_populates="platform", cascade="all, delete-orphan"
+    )

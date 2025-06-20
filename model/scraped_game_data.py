@@ -49,3 +49,4 @@ class ScrapedGameData(Base):
 
     game = relationship("Game", back_populates="scraped_data")
     platform = relationship("Platform", back_populates="scraped_data")
+    game_scrape_detail = relationship("GameScrapeDetail", back_populates="scraped_game_data")

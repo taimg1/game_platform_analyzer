@@ -1,7 +1,7 @@
 import re
 import asyncio
 from datetime import datetime, timezone
-from typing import Annotated
+from typing import Annotated, Set, List
 from fastapi import Depends
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup, Tag
@@ -15,12 +15,22 @@ class WebScraper:
 
     async def get_page_html(self, url: str) -> str:
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=False)
+            browser = await p.chromium.launch(headless=True)
             page = await browser.new_page()
             await page.goto(url, timeout=90000)
+
+            try:
+                await page.wait_for_selector(
+                    "button.button--big.age-gate__button", timeout=10000
+                )
+                await page.click("button.button--big.age-gate__button")
+                await page.wait_for_load_state("networkidle")
+            except Exception as e:
+                print(f"Age gate button not found or error clicking: {e}")
+
             html = await page.content()
             await browser.close()
-        return html
+            return html
 
     def delete_trash_data_from_html(self, html: str) -> str:
         soup = BeautifulSoup(html, "html.parser")
@@ -95,29 +105,35 @@ class WebScraper:
         return obj
 
     async def extract_game_links_with_gemini(
-        self, clean_html: str, current_count: int, target_count: int, current_url: str
+        self,
+        clean_html: str,
+        target_count: int,
+        current_url: str,
     ) -> dict:
         prompt = f"""
-You are a highly intelligent web scraping assistant. Your task is to analyze the provided HTML of a game store's category page and extract two things: direct links to individual game detail pages and a way to navigate to the next page of results.
+You are a highly intelligent web scraping assistant. Your task is to analyze the provided HTML of a game store's category page and extract two things: all direct links to individual game detail pages and a way to navigate to the next page of results.
 
 Instructions:
-1.  Identify and return a list of game detail URLs. A game URL typically leads to a page dedicated to a single game. Do not include links to news, DLCs without a base game, or developer pages. Return up to {target_count - current_count} URLs.
-    - IMPORTANT: If an extracted URL is a relative path (e.g., starts with '/'), you MUST combine it with the base URL of the current page to form an absolute URL. The current page URL is: {current_url}
-2.  Find the pagination element to go to the NEXT page. Provide a unique and reliable CSS selector for it.
-    -   Prioritize elements with text like 'Next', '>', '>>', or `aria-label="Next page"`.
+1.  Identify and return a list of **ALL** game detail URLs found on the page. A game URL typically leads to a page dedicated to a single game.
+    -   Do not include links to news, DLCs without a base game, or developer pages.
+    -   Return as many game URLs as you can find on the page, up to a maximum of {target_count}.
+    -   IMPORTANT: If an extracted URL is a relative path (e.g., starts with '/'), you MUST combine it with the base URL of the current page to form an absolute URL. The current page URL is: {current_url}
+2.  Find the pagination element to go to the NEXT page or 'Load More'. Provide a unique and reliable CSS selector for it.
+    -   Prioritize elements with text like 'Next', '>', '>>', `aria-label="Next page"`, or especially 'Load More'.
     -   If there's no 'Next' button but there are numbered pages, provide the selector for the next available page number.
-    -   If pagination is an infinite scroll or a 'Load More' button, provide the selector for that button.
     -   If you cannot find a way to get to the next page, return null.
 
 Return a single, valid JSON object with the following keys:
--   "game_urls": (list[str]) A list of the game URLs found.
+-   "game_urls": (list[str]) A list of all game URLs found.
 -   "next_page_selector": (str or null) The CSS selector for the next page/load more element, or null if not found.
 
 Cleaned HTML:
 {clean_html}
 """
 
-        response_text = await self.gemini_api.generate_response(prompt) or ""
+        response_text = await self.gemini_api.generate_response(prompt)
+        if not response_text:
+            raise ValueError("Failed to get a valid response from Gemini API.")
         response_text = self.__clean_json_markdown(response_text)
         try:
             response_json = json.loads(response_text)
@@ -129,36 +145,75 @@ Cleaned HTML:
             print("Failed to parse Gemini response as JSON:", response_text)
             return {"game_urls": [], "next_page_selector": None}
 
-    async def collect_game_urls(
-        self, start_url: str, game_selector: str, limit: int = 10
-    ) -> list[str]:
-        collected_urls = []
-        url = start_url
+    async def collect_game_urls(self, start_url: str, limit: int = 50) -> list[str]:
+        collected_urls: List[str] = []
+        seen_urls: Set[str] = set()
 
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=False)
             page = await browser.new_page()
-            await page.goto(url, timeout=90000)
-
+            await page.goto(start_url, timeout=90000)
+            await page.evaluate("""
+                const scrollHeight = document.body.scrollHeight;
+                window.scrollTo(0, scrollHeight * 0.35);
+            """)
             while len(collected_urls) < limit:
+                try:
+                    await page.evaluate("""
+                        const scrollHeight = document.body.scrollHeight;
+                        window.scrollTo(0, scrollHeight * 0.35);
+                    """)
+                    await asyncio.sleep(3)
+                    await page.evaluate(
+                        "window.scrollBy(0, document.body.scrollHeight)"
+                    )
+                except Exception as e:
+                    print(
+                        f"Page did not reach network idle state, proceeding anyway: {e}"
+                    )
+
                 html = await page.content()
                 current_page_url = page.url
                 cleaned_html = self.delete_trash_data_from_html(html)
 
                 result = await self.extract_game_links_with_gemini(
-                    cleaned_html, len(collected_urls), limit, current_page_url
+                    cleaned_html,
+                    limit,
+                    current_page_url,
                 )
 
-                collected_urls.extend(result["game_urls"])
+                all_found_urls = result.get("game_urls", [])
+
+                if not all_found_urls and not result.get("next_page_selector"):
+                    print("LLM returned no URLs and no next page selector. Stopping.")
+                    break
+
+                for url in all_found_urls:
+                    if url not in seen_urls:
+                        seen_urls.add(url)
+                        collected_urls.append(url)
+                        if len(collected_urls) >= limit:
+                            break
+
+                print(f"Collected {len(collected_urls)} URLs so far (target: {limit}).")
 
                 if not result["next_page_selector"] or len(collected_urls) >= limit:
+                    if not result["next_page_selector"]:
+                        print("No 'next page' button found. Stopping.")
                     break
 
                 try:
-                    await page.click(result["next_page_selector"])
-                    await asyncio.sleep(5)
+                    next_page_selector = result["next_page_selector"]
+                    await page.locator(next_page_selector).scroll_into_view_if_needed(
+                        timeout=5000
+                    )
+                    await page.click(next_page_selector, timeout=10000)
+                    print(f"Clicked '{next_page_selector}'. Waiting for new content.")
+
                 except Exception as e:
-                    print(f"Pagination failed: {e}")
+                    print(
+                        f"Pagination failed or element '{result.get('next_page_selector')}' not found: {e}"
+                    )
                     break
 
             await browser.close()
@@ -209,7 +264,9 @@ Important Notes:
 
 JSON Response:
 """
-        response_text = await self.gemini_api.generate_response(prompt) or ""
+        response_text = await self.gemini_api.generate_response(prompt) 
+        if not response_text:
+            raise ValueError("Failed to get a valid response from Gemini API.")
         cleaned_response_text = self.__clean_json_markdown(response_text)
 
         try:
@@ -217,7 +274,7 @@ JSON Response:
             required_fields = [
                 "name",
                 "price",
-                "price_in_usdcurrency",
+                "price_in_usd", 
                 "availability_status",
             ]
             for field in required_fields:
@@ -232,14 +289,17 @@ JSON Response:
             )
             return {
                 "name": None,
-                "price": None,
-                "price_in_usd": None,
+                "description": None,
+                "price": -1.0,
                 "currency": None,
+                "price_in_usd": -1.0,
                 "availability_status": "unknown",
+                "url_on_platform": game_url,
                 "rating": None,
                 "reviews_count": None,
                 "special_content_json": None,
                 "discount_info_json": None,
+                "metadata_json": None,
             }
         except Exception as e:
             print(
@@ -247,14 +307,17 @@ JSON Response:
             )
             return {
                 "name": None,
-                "price": None,
-                "price_in_usd": None,
+                "description": None,
+                "price": -1.0,
                 "currency": None,
+                "price_in_usd": -1.0,
                 "availability_status": "unknown",
+                "url_on_platform": game_url,
                 "rating": None,
                 "reviews_count": None,
                 "special_content_json": None,
                 "discount_info_json": None,
+                "metadata_json": None,
             }
 
 

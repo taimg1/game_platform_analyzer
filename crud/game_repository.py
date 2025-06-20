@@ -3,9 +3,10 @@ from uuid import UUID
 
 from fastapi import Depends
 from sqlalchemy import select, insert, update, delete
+from sqlalchemy.orm import selectinload
 
 from db import SessionLocalDependency
-from model import Game
+from model import Game, ScrapedGameData
 
 
 class GameRepository:
@@ -63,6 +64,15 @@ class GameRepository:
         result = await self.session.execute(query)
 
         return result.scalar_one_or_none()
+
+    async def get_game_scraped_data_with_platforms(self, game_id: UUID):
+        query = (
+            select(ScrapedGameData)
+            .options(selectinload(ScrapedGameData.platform))
+            .where(ScrapedGameData.game_id == game_id)
+        )
+        result = await self.session.scalars(query)
+        return result.all()
 
 
 GameRepositoryDependency = Annotated[GameRepository, Depends(GameRepository)]

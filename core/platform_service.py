@@ -39,9 +39,9 @@ class PlatformService:
         platform_to_create = Platform(
             id=uuid.uuid4(),
             name=platform_data.name,
-            search_url_template=platform_data.search_url_template,
-            base_url=platform_data.base_url,
-            game_data_selector=platform_data.game_data_selector,
+            search_url_template=str(platform_data.search_url_template),
+            base_url=str(platform_data.base_url),
+            game_data_selector=str(platform_data.game_data_selector),
         )
         try:
             created_platform = await self.platform_repo.create_platform(
@@ -84,9 +84,9 @@ class PlatformService:
         platform_model_to_update = Platform(
             id=platform_dto.id,
             name=platform_dto.name,
-            search_url_template=platform_dto.search_url_template,
-            base_url=platform_dto.base_url,
-            game_data_selector=platform_dto.game_data_selector,
+            search_url_template=str(platform_dto.search_url_template),
+            base_url=str(platform_dto.base_url),
+            game_data_selector=str(platform_dto.game_data_selector),
         )
         try:
             updated_platform_result = await self.platform_repo.update_platform(

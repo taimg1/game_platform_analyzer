@@ -1,7 +1,12 @@
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from controllers import platform_controller, game_controller, game_scrape_controller
+from controllers import (
+    platform_controller,
+    game_controller,
+    game_scrape_controller,
+    analysis_controller,
+    game_summary_controller,
+)
 
 app = FastAPI()
 
@@ -16,4 +21,5 @@ app.add_middleware(
 app.include_router(platform_controller.router)
 app.include_router(game_controller.router)
 app.include_router(game_scrape_controller.router)
-
+app.include_router(analysis_controller.router)
+app.include_router(game_summary_controller.router)

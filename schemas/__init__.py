@@ -1,6 +1,15 @@
 from .game_schemas import GameDTO, CreateGameDTO
 from .platform_schemas import PlatformDTO, CreatePlatformDTO
-from .scraped_game_data_schemas import ScrapedGameDataDTO, CreateScrapedGameDataDTO, ScrapeRequest
+from .scraped_game_data_schemas import (
+    ScrapedGameDataDTO,
+    CreateScrapedGameDataDTO,
+    ScrapeGamesRequest,
+)
+from .scrape_schemas import (
+    GameScrapeDetailDTO,
+    ScrapeResultDTO,
+    ScrapeRequestDTO,
+)
 
 __all__ = [
     "GameDTO",
@@ -9,5 +18,8 @@ __all__ = [
     "CreatePlatformDTO",
     "ScrapedGameDataDTO",
     "CreateScrapedGameDataDTO",
-    "ScrapeRequest",
+    "ScrapeGamesRequest",
+    "GameScrapeDetailDTO",
+    "ScrapeResultDTO",
+    "ScrapeRequestDTO",
 ]

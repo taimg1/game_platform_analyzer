@@ -1,6 +1,7 @@
 from uuid import UUID
-from pydantic import BaseModel, Field
 from typing import Optional
+
+from pydantic import BaseModel, Field
 from datetime import datetime
 from enums import GameStatusEnum
 
@@ -10,7 +11,7 @@ class ScrapedGameDataDTO(BaseModel):
     name_on_platform: str
     price: float
     price_in_usd: float
-    currency: str
+    currency: Optional[str] = None
     availability_status: GameStatusEnum
     url_on_platform: str
     rating: Optional[float]
@@ -31,7 +32,7 @@ class CreateScrapedGameDataDTO(BaseModel):
     name_on_platform: str
     price: float
     price_in_usd: float
-    currency: str
+    currency: Optional[str] = None
     availability_status: GameStatusEnum
     url_on_platform: str
     rating: Optional[float]
@@ -43,6 +44,6 @@ class CreateScrapedGameDataDTO(BaseModel):
     platform_id: UUID
 
 
-class ScrapeRequest(BaseModel):
+class ScrapeGamesRequest(BaseModel):
     platform_id: UUID
     limit: int = Field(10, ge=1, le=100, description="Number of games to scrape")
