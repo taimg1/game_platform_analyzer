@@ -5,17 +5,17 @@ import pandas as pd
 
 from fastapi import Depends, HTTPException
 
-from crud.scraped_game_data_repository import ScrapedGameDataRepositoryDependency
-from crud.analysis_requests_repository import AnalysisRequestsRepositoryDependency
-from crud.regression_results_repository import RegressionResultsRepositoryDependency
-from model.analysis_requests import AnalysisRequests
-from model.regression_results import RegressionResults
-from schemas.regression_schemas import (
+from crud import (
+    ScrapedGameDataRepositoryDependency,
+    AnalysisRequestsRepositoryDependency,
+    RegressionResultsRepositoryDependency,
+)
+from model import AnalysisRequests, RegressionResults
+from schemas import (
     AnalysisRequestCreateDto,
     RegressionResultResponseDto,
 )
-from untils.regression import RegressionModel
-from untils.gemini_api import GeminiApiDependency
+from untils import RegressionModel, GeminiApiDependency
 
 
 class AnalysisService:

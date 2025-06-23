@@ -1,8 +1,7 @@
 import pandas as pd
 import statsmodels.api as sm
 from typing import List, Dict, Any
-
-from model.scraped_game_data import ScrapedGameData
+from model import ScrapedGameData
 
 
 class RegressionModel:

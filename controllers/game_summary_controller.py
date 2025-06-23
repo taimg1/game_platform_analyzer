@@ -1,6 +1,8 @@
-from fastapi import APIRouter, status
+import io
 from uuid import UUID
-from typing import Dict, Any
+
+from fastapi import APIRouter, status
+from fastapi.responses import StreamingResponse
 
 from core import GameSummaryServiceDependency
 
@@ -15,9 +17,16 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=Dict[str, Any])
+@router.get("/", response_class=StreamingResponse)
 async def generate_game_summary(
     game_id: UUID, service: GameSummaryServiceDependency
-) -> Dict[str, Any]:
-    file_info = await service.generate_summary_pdf_for_game(game_id)
-    return {"file": file_info}
+) -> StreamingResponse:
+    pdf_bytes, file_name = await service.generate_summary_pdf_for_game(game_id)
+
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename={file_name}",
+        },
+    )

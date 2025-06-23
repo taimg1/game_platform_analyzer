@@ -5,12 +5,12 @@ from typing import Annotated, Set, List
 from fastapi import Depends
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup, Tag
-from untils.gemini_api import GeminiApi
+from untils.gemini_api import GeminiApiDependency
 import json
 
 
 class WebScraper:
-    def __init__(self, gemini_api: GeminiApi = Depends()):
+    def __init__(self, gemini_api: GeminiApiDependency):
         self.gemini_api = gemini_api
 
     async def get_page_html(self, url: str) -> str:

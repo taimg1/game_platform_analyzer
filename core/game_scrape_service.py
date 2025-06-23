@@ -22,8 +22,7 @@ from model import (
     ScrapeResult,
     GameScrapeDetail,
 )
-from schemas import ScrapedGameDataDTO, ScrapeResultDTO
-from schemas.scrape_schemas import GameScrapeDetailDTO, ScrapeRequestDTO
+from schemas import ScrapedGameDataDTO, GameScrapeDetailDTO, ScrapeRequestDTO
 from untils import WebScraperDependency
 from typing import Annotated
 

@@ -10,6 +10,10 @@ from .scrape_schemas import (
     ScrapeResultDTO,
     ScrapeRequestDTO,
 )
+from .regression_schemas import (
+    AnalysisRequestCreateDto,
+    RegressionResultResponseDto,
+)
 
 __all__ = [
     "GameDTO",
@@ -22,4 +26,6 @@ __all__ = [
     "GameScrapeDetailDTO",
     "ScrapeResultDTO",
     "ScrapeRequestDTO",
+    "AnalysisRequestCreateDto",
+    "RegressionResultResponseDto",
 ]

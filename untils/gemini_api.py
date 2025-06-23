@@ -1,5 +1,4 @@
 from google import genai
-from google.generativeai.types import generation_types
 from common.app_settings import settings
 from typing import Annotated
 from fastapi import Depends
@@ -66,35 +65,6 @@ class GeminiApi:
         if match:
             return match.group(1).strip()
         return text.strip()
-
-    async def generate_file_from_prompt(self, prompt: str) -> dict:
-        try:
-            print("Generating file from prompt via Gemini...")
-
-            generation_config = generation_types.GenerationConfig(
-                response_mime_type="application/pdf"
-            )
-
-            response = await self.client.aio.models.generate_content(
-                model=self.model,
-                contents=prompt,
-                generation_config=generation_config,
-            )
-
-            if response.candidates and response.candidates[0].content.parts:
-                generated_file_data = response.candidates[0].content.parts[0].file_data
-
-                return {
-                    "uri": generated_file_data.file_uri,
-                    "mime_type": generated_file_data.mime_type,
-                    "name": prompt.split("filename '")[1].split("'")[0],
-                }
-
-            raise RuntimeError("Gemini response did not contain file_data")
-
-        except Exception as e:
-            print(f"Failed to generate file from Gemini: {e}")
-            raise
 
 
 GeminiApiDependency = Annotated[GeminiApi, Depends(GeminiApi)]
